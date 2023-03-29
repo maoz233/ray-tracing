@@ -24,8 +24,7 @@ class Scene : public Layer {
  public:
   Scene() = delete;
   Scene(VkPhysicalDevice& physical_device, VkDevice& device,
-        VkQueue& graphics_queue, VkCommandPool& command_pool,
-        VkDescriptorPool& descriptor_pool);
+        VkQueue& graphics_queue, VkCommandPool& command_pool);
   virtual ~Scene();
 
   virtual void OnUIRender() override;
@@ -43,7 +42,6 @@ class Scene : public Layer {
   VkDevice& device_;
   VkQueue& graphics_queue_;
   VkCommandPool& command_pool_;
-  VkDescriptorPool& descriptor_pool_;
 };
 
 }  // namespace rt

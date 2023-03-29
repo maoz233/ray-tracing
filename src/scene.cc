@@ -23,13 +23,11 @@
 namespace rt {
 
 Scene::Scene(VkPhysicalDevice& physical_device, VkDevice& device,
-             VkQueue& graphics_queue, VkCommandPool& command_pool,
-             VkDescriptorPool& descriptor_pool)
+             VkQueue& graphics_queue, VkCommandPool& command_pool)
     : physical_device_{physical_device},
       device_{device},
       graphics_queue_{graphics_queue},
-      command_pool_{command_pool},
-      descriptor_pool_{descriptor_pool} {}
+      command_pool_{command_pool} {}
 
 Scene::~Scene() {
   delete[] image_;
@@ -69,7 +67,7 @@ void Scene::Render() {
       height_ != image_->GetHeight()) {
     // create new image
     image_ = new Image(width_, height_, physical_device_, device_,
-                       graphics_queue_, command_pool_, descriptor_pool_);
+                       graphics_queue_, command_pool_);
     // clear previous image data
     delete[] image_data_;
     // allocate new image data

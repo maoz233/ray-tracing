@@ -23,15 +23,13 @@ namespace rt {
 
 Image::Image(uint32_t width, uint32_t height, VkPhysicalDevice& physical_device,
              VkDevice& device, VkQueue& graphics_queue,
-             VkCommandPool& command_pool, VkDescriptorPool& descriptor_pool,
-             const void* data)
+             VkCommandPool& command_pool, const void* data)
     : width_{width},
       height_{height},
       physical_device_{physical_device},
       device_{device},
       graphics_queue_{graphics_queue},
-      command_pool_{command_pool},
-      descriptor_pool_{descriptor_pool} {
+      command_pool_{command_pool} {
   // create image
   CreateTextureImage();
   // create image view

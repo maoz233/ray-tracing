@@ -70,8 +70,7 @@ Application::Application() {
   SetupImGui();
 
   // setup scene layer
-  layer_ = new Scene(physical_device_, device_, graphics_queue_, command_pool_,
-                     descriptor_pool_);
+  layer_ = new Scene(physical_device_, device_, graphics_queue_, command_pool_);
 }
 
 Application::~Application() {

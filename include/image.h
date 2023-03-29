@@ -20,10 +20,10 @@ namespace rt {
 
 class Image {
  public:
-  Image() = default;
+  Image() = delete;
   Image(uint32_t width, uint32_t height, VkPhysicalDevice& physical_device,
         VkDevice& device, VkQueue& graphics_queue, VkCommandPool& command_pool,
-        VkDescriptorPool& descritor_pool, const void* data = nullptr);
+        const void* data = nullptr);
   ~Image();
 
   void CreateTextureImage();
@@ -46,7 +46,6 @@ class Image {
   VkDevice& device_;
   VkQueue& graphics_queue_;
   VkCommandPool& command_pool_;
-  VkDescriptorPool& descriptor_pool_;
 
   VkImage texture_image_ = VK_NULL_HANDLE;
   VkDeviceMemory texture_image_memory_ = VK_NULL_HANDLE;
