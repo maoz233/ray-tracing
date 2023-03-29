@@ -1,0 +1,16 @@
+{
+  "name": "tracer",
+  "version": "1.0",
+  "dependencies": [
+    "glfw3",
+    "glm",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "vulkan-binding",
+        "docking-experimental"
+      ]
+    }
+  ]
+}
