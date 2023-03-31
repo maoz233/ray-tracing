@@ -17,6 +17,7 @@
 
 #include "image.h"
 #include "layer.h"
+#include "ray.h"
 
 namespace rt {
 
@@ -30,6 +31,8 @@ class Scene : public Layer {
   virtual void OnUIRender() override;
 
   void Render();
+
+  uint32_t RayColor(const Ray& ray);
 
  private:
   uint32_t width_ = 0;
