@@ -22,6 +22,10 @@
 #define RAY_TRACING_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
 
+#include <glm/glm.hpp>
+
+#include "ray.h"
+
 namespace rt {
 
 Scene::Scene(VkPhysicalDevice& physical_device, VkDevice& device,
