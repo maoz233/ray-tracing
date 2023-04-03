@@ -15,9 +15,11 @@
 
 #include <cstdint>
 
+#include "hittable.h"
 #include "image.h"
 #include "layer.h"
 #include "ray.h"
+#include "sphere.h"
 
 namespace rt {
 
@@ -32,7 +34,10 @@ class Scene : public Layer {
 
   void Render();
 
-  uint32_t RayColor(const Ray& ray);
+  uint32_t RayColor(const Ray& ray, const Hittable& world);
+
+  uint32_t GetColor(const glm::vec3 color);
+  uint32_t GetColor(const glm::vec4 color);
 
  private:
   uint32_t width_ = 0;

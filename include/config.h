@@ -11,6 +11,8 @@
 #ifndef RAY_TRACING_INCLUDE_CONFIG_H_
 #define RAY_TRACING_INCLUDE_CONFIG_H_
 
+#include <limits>
+
 namespace rt {
 
 #ifdef _DEBUG
@@ -28,6 +30,9 @@ const char* const FONTS_FILEPATH{"../fonts/Roboto-Medium.ttf"};
 #endif
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
+
+const float INFINITY_F = std::numeric_limits<float>::infinity();
+const float PI = 3.1415926f;
 
 }  // namespace rt
 

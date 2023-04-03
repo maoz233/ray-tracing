@@ -24,7 +24,10 @@
 
 #include <glm/glm.hpp>
 
+#include "config.h"
+#include "hittable_list.h"
 #include "ray.h"
+#include "sphere.h"
 
 namespace rt {
 
@@ -92,6 +95,11 @@ void Scene::Render() {
   glm::vec3 lower_left = origin - horizontal / 2.f - vertical / 2.f -
                          glm::vec3(0.f, 0.f, focal_length);
 
+  // world
+  HittableList world{};
+  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, 0.f, -1.f), 0.5f));
+  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, -100.5f, -1.f), 100.f));
+
   // set image pixel data
   for (uint32_t j = 0; j < height_; ++j) {
     for (uint32_t i = 0; i < width_; ++i) {
@@ -100,7 +108,7 @@ void Scene::Render() {
           static_cast<float>(height_ - j) / static_cast<float>(height_ - 1);
       Ray ray{origin, lower_left + u * horizontal + v * vertical - origin};
 
-      image_data_[j * width_ + i] = RayColor(ray);
+      image_data_[j * width_ + i] = RayColor(ray, world);
     }
   }
 
@@ -108,19 +116,41 @@ void Scene::Render() {
   image_->SetData(image_data_);
 }
 
-uint32_t Scene::RayColor(const Ray& ray) {
+uint32_t Scene::RayColor(const Ray& ray, const Hittable& world) {
+  // hit record
+  HitRecord record{};
+
+  // hittable objects color
+  if (world.Hit(ray, 0, INFINITY_F, record)) {
+    glm::vec3 color = 0.5f * (record.normal + glm::vec3(1.f, 1.f, 1.f));
+
+    return GetColor(color);
+  }
+
+  // background color
   glm::vec3 unit_direction = glm::normalize(ray.GetDirection());
-
   float t = 0.5f * (unit_direction.y + 1.f);
-  auto color =
-      (1.f - t) * glm::vec3(255, 255, 255) + t * glm::vec3(128, 179, 255);
-  uint32_t R = static_cast<uint32_t>(color.r);
-  uint32_t G = static_cast<uint32_t>(color.g);
-  uint32_t B = static_cast<uint32_t>(color.b);
+  glm::vec3 color =
+      (1.f - t) * glm::vec3(1.f, 1.f, 1.f) + t * glm::vec3(0.5f, 0.7f, 1.f);
 
-  auto res = (255 << 24) | (B << 16) | (G << 8) | R;
+  return GetColor(color);
+}
 
-  return res;
+uint32_t Scene::GetColor(const glm::vec3 color) {
+  uint32_t R = static_cast<uint32_t>(color.r * 255.f);
+  uint32_t G = static_cast<uint32_t>(color.g * 255.f);
+  uint32_t B = static_cast<uint32_t>(color.b * 255.f);
+
+  return (255 << 24) | (B << 16) | (G << 8) | R;
+}
+
+uint32_t Scene::GetColor(const glm::vec4 color) {
+  uint32_t R = static_cast<uint32_t>(color.r * 255.f);
+  uint32_t G = static_cast<uint32_t>(color.g * 255.f);
+  uint32_t B = static_cast<uint32_t>(color.b * 255.f);
+  uint32_t A = static_cast<uint32_t>(color.a * 255.f);
+
+  return (A << 24) | (B << 16) | (G << 8) | R;
 }
 
 }  // namespace rt
