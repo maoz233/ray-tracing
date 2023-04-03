@@ -11,8 +11,6 @@
 #ifndef RAY_TRACING_INCLUDE_IMAGE_H_
 #define RAY_TRACING_INCLUDE_IMAGE_H_
 
-#include <vector>
-
 #define RAY_TRACING_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
 

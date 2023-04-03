@@ -10,8 +10,6 @@
  */
 #include "scene.h"
 
-#include <iomanip>
-#include <iostream>
 #include <memory>
 
 #define RAY_TRACING_INCLUDE_IMGUI
