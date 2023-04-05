@@ -122,11 +122,6 @@ void Scene::OnUIRender() {
 void Scene::Render() {
   // begin time
   auto begin = std::chrono::high_resolution_clock::now();
-  // begin timestamp
-  auto begin_ms =
-      std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(
-          begin.time_since_epoch())
-          .count();
 
   if (!image_ || width_ != image_->GetWidth() ||
       height_ != image_->GetHeight()) {
@@ -172,14 +167,13 @@ void Scene::Render() {
 
   // end time
   auto end = std::chrono::high_resolution_clock::now();
-  // end timestamp
-  auto end_ms =
-      std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(
-          end.time_since_epoch())
-          .count();
 
   // delta time
-  delta_time_ = end_ms - begin_ms;
+  delta_time_ =
+      std::chrono::duration_cast<std::chrono::duration<float, std::micro>>(
+          end - begin)
+          .count() /
+      1000.f;
 }
 
 glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {

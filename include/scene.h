@@ -53,7 +53,7 @@ class Scene : public Layer {
   VkCommandPool& command_pool_;
 
   float delta_time_ = 0.f;
-  int samples_per_pixel_ = 1;
+  int samples_per_pixel_ = 8;
   int bounce_limit_ = 5;
   float gamma_ = 1.05f;
   bool is_playing_ = false;
