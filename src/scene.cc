@@ -74,15 +74,32 @@ void Scene::OnUIRender() {
   // imgui text: scene extent detail
   ImGui::Text("Scene: %d * %d", width_, height_);
 
+  // imgui input: samples per pixel
+  ImGui::Text("Samples: ");
+  ImGui::SameLine();
+  ImGui::InputInt("##SamplesPerPixel", &samples_per_pixel_);
+
+  if (samples_per_pixel_ < 1) {
+    samples_per_pixel_ = 1;
+  }
+
   // imgui input: bounce limit
   ImGui::Text("Bounce: ");
   ImGui::SameLine();
   ImGui::InputInt("##BounceLimit", &bounce_limit_);
 
+  if (bounce_limit_ < 0) {
+    bounce_limit_ = 0;
+  }
+
   // imgui input: gamma
   ImGui::Text("Gamma: ");
   ImGui::SameLine();
   ImGui::InputFloat("##Gamma", &gamma_, 0.01f, 1.f, "%.2f");
+
+  if (gamma_ < 0.f) {
+    gamma_ = 0.f;
+  }
 
   // imgui: test button
   if (ImGui::Button("Test")) {
@@ -133,13 +150,20 @@ void Scene::Render() {
   // set image pixel data
   for (uint32_t j = 0; j < height_; ++j) {
     for (uint32_t i = 0; i < width_; ++i) {
-      float u = static_cast<float>(i) / static_cast<float>(width_ - 1);
-      float v = 1.f - static_cast<float>(j) / static_cast<float>(height_ - 1);
+      glm::vec3 pixel_color{};
 
-      Ray ray = camera.GetRay(u, v);
-      glm::vec3 pixel_color = RayColor(ray, world, bounce_limit_);
+      for (int s = 0; s < samples_per_pixel_; ++s) {
+        float u = static_cast<float>(i + Utils::RandomFloat()) /
+                  static_cast<float>(width_ - 1);
+        float v = 1.f - static_cast<float>(j + Utils::RandomFloat()) /
+                            static_cast<float>(height_ - 1);
 
-      image_data_[j * width_ + i] = Utils::GetColor(pixel_color, gamma_);
+        Ray ray = camera.GetRay(u, v);
+        pixel_color += RayColor(ray, world, bounce_limit_);
+      }
+
+      image_data_[j * width_ + i] =
+          Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
     }
   }
 
@@ -171,8 +195,8 @@ glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {
   if (world.Hit(ray, 0.001f, INFINITY_F, record)) {
     glm::vec3 target = record.point + record.normal +
                        glm::normalize(RandomInHemiSphere(record.normal));
-    glm::vec3 color = 0.75f * RayColor(Ray(record.point, target - record.point),
-                                       world, bounce - 1);
+    glm::vec3 color = 0.5f * RayColor(Ray(record.point, target - record.point),
+                                      world, bounce - 1);
 
     return color;
   }

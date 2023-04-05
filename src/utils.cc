@@ -651,24 +651,30 @@ void Utils::CopyBufferToImage(const VkDevice& device,
   EndSingleTimeCommand(device, graphics_queue, command_pool, command_buffer);
 }
 
-uint32_t Utils::GetColor(const glm::vec3 color, float gamma) {
+uint32_t Utils::GetColor(const glm::vec3 color, int samples_per_pixel,
+                         float gamma) {
+  float scale = static_cast<float>(1.f / samples_per_pixel);
+
   uint32_t R = static_cast<uint32_t>(
-      std::pow(std::clamp(color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
   uint32_t G = static_cast<uint32_t>(
-      std::pow(std::clamp(color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
   uint32_t B = static_cast<uint32_t>(
-      std::pow(std::clamp(color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
 
   return (255 << 24) | (B << 16) | (G << 8) | R;
 }
 
-uint32_t Utils::GetColor(const glm::vec4 color, float gamma) {
+uint32_t Utils::GetColor(const glm::vec4 color, int samples_per_pixel,
+                         float gamma) {
+  float scale = static_cast<float>(1.f / samples_per_pixel);
+
   uint32_t R = static_cast<uint32_t>(
-      std::pow(std::clamp(color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
   uint32_t G = static_cast<uint32_t>(
-      std::pow(std::clamp(color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
   uint32_t B = static_cast<uint32_t>(
-      std::pow(std::clamp(color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
+      std::pow(std::clamp(scale * color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
   uint32_t A = static_cast<uint32_t>(std::clamp(color.a, 0.f, 0.999f) * 256.f);
 
   return (A << 24) | (B << 16) | (G << 8) | R;
