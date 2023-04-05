@@ -11,6 +11,7 @@
 #ifndef RAY_TRACING_INCLUDE_UTILS_H_
 #define RAY_TRACING_INCLUDE_UTILS_H_
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -19,6 +20,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+
+#include <glm/glm.hpp>
 
 namespace rt {
 
@@ -161,6 +164,17 @@ class Utils {
                                 const VkCommandPool& command_pool,
                                 VkBuffer buffer, VkImage image, uint32_t width,
                                 uint32_t height);
+  // RGB to RGBA in hexadecimal
+  static uint32_t GetColor(const glm::vec3 color, float gamma = 1.f);
+
+  // RGBA in hexadecimal
+  static uint32_t GetColor(const glm::vec4 color, float gamma = 1.f);
+
+  // random float number
+  static float RandomFloat(float min = 0.f, float max = 1.f);
+
+  // random 3-dimension vector
+  static glm::vec3 RandomVec3(float min = 0.f, float max = 1.f);
 };
 
 }  // namespace rt

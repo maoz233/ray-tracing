@@ -19,8 +19,8 @@ namespace rt {
 #define RAY_TRACING_ENABLE_VULKAN_VALIDATION_LAYER
 #endif
 
-const int WIDTH = 1366;
-const int HEIGHT = 768;
+const int WIDTH = 1500;
+const int HEIGHT = 762;
 const char* const TITLE = "Ray Tracing";
 
 #ifdef _WIN32

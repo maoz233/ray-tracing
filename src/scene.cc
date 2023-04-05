@@ -10,6 +10,8 @@
  */
 #include "scene.h"
 
+#include <algorithm>
+#include <chrono>
 #include <memory>
 
 #define RAY_TRACING_INCLUDE_IMGUI
@@ -22,10 +24,12 @@
 
 #include <glm/glm.hpp>
 
+#include "camera.h"
 #include "config.h"
 #include "hittable_list.h"
 #include "ray.h"
 #include "sphere.h"
+#include "utils.h"
 
 namespace rt {
 
@@ -58,18 +62,55 @@ void Scene::OnUIRender() {
   ImGui::End();
   ImGui::PopStyleVar();
 
-  // imgui: settings viewport
+  ImGui::ShowDemoWindow();
+
+  // imgui viewport: settings
   ImGui::Begin("Settings");
 
-  // imgui: scene extent detail text
+  // imgui text: fps
+  ImGui::Text("Time: %.2fms", delta_time_);
+  // imgui text: fps
+  ImGui::Text("FPS: %.2f", 1000.f / delta_time_);
+  // imgui text: scene extent detail
   ImGui::Text("Scene: %d * %d", width_, height_);
+
+  // imgui input: bounce limit
+  ImGui::Text("Bounce: ");
+  ImGui::SameLine();
+  ImGui::InputInt("##BounceLimit", &bounce_limit_);
+
+  // imgui input: gamma
+  ImGui::Text("Gamma: ");
+  ImGui::SameLine();
+  ImGui::InputFloat("##Gamma", &gamma_, 0.01f, 1.f, "%.2f");
+
+  // imgui: test button
+  if (ImGui::Button("Test")) {
+    Render();
+  }
+
+  // imgui: play/pause button
+  if (ImGui::Button(play_button_label_)) {
+    is_playing_ = !is_playing_;
+    play_button_label_ = is_playing_ ? "Pause" : "Play";
+  }
 
   ImGui::End();
 
-  Render();
+  if (is_playing_) {
+    Render();
+  }
 }
 
 void Scene::Render() {
+  // begin time
+  auto begin = std::chrono::high_resolution_clock::now();
+  // begin timestamp
+  auto begin_ms =
+      std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(
+          begin.time_since_epoch())
+          .count();
+
   if (!image_ || width_ != image_->GetWidth() ||
       height_ != image_->GetHeight()) {
     // create new image
@@ -81,17 +122,8 @@ void Scene::Render() {
     image_data_ = new uint32_t[width_ * height_];
   }
 
-  // ray tracing viewport
-  const float aspect_ratio =
-      static_cast<float>(static_cast<float>(width_) / height_);
-  const float focal_length = 1.f;
-  const float viewport_height = 2.f;
-  const float viewport_width = viewport_height * aspect_ratio;
-  glm::vec3 origin{0.f, 0.f, 0.f};
-  glm::vec3 horizontal{viewport_width, 0.f, 0.f};
-  glm::vec3 vertical{0.f, viewport_height, 0.f};
-  glm::vec3 lower_left = origin - horizontal / 2.f - vertical / 2.f -
-                         glm::vec3(0.f, 0.f, focal_length);
+  // camera
+  Camera camera{};
 
   // world
   HittableList world{};
@@ -101,28 +133,48 @@ void Scene::Render() {
   // set image pixel data
   for (uint32_t j = 0; j < height_; ++j) {
     for (uint32_t i = 0; i < width_; ++i) {
-      auto u = static_cast<float>(i) / static_cast<float>(width_ - 1);
-      auto v =
-          static_cast<float>(height_ - j) / static_cast<float>(height_ - 1);
-      Ray ray{origin, lower_left + u * horizontal + v * vertical - origin};
+      float u = static_cast<float>(i) / static_cast<float>(width_ - 1);
+      float v = 1.f - static_cast<float>(j) / static_cast<float>(height_ - 1);
 
-      image_data_[j * width_ + i] = RayColor(ray, world);
+      Ray ray = camera.GetRay(u, v);
+      glm::vec3 pixel_color = RayColor(ray, world, bounce_limit_);
+
+      image_data_[j * width_ + i] = Utils::GetColor(pixel_color, gamma_);
     }
   }
 
   // set image data
   image_->SetData(image_data_);
+
+  // end time
+  auto end = std::chrono::high_resolution_clock::now();
+  // end timestamp
+  auto end_ms =
+      std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(
+          end.time_since_epoch())
+          .count();
+
+  // delta time
+  delta_time_ = end_ms - begin_ms;
 }
 
-uint32_t Scene::RayColor(const Ray& ray, const Hittable& world) {
+glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {
   // hit record
   HitRecord record{};
 
-  // hittable objects color
-  if (world.Hit(ray, 0, INFINITY_F, record)) {
-    glm::vec3 color = 0.5f * (record.normal + glm::vec3(1.f, 1.f, 1.f));
+  // check whether exceed the ray bounce limit
+  if (bounce <= 0) {
+    return glm::vec3(0.f, 0.f, 0.f);
+  }
 
-    return GetColor(color);
+  // hittable objects color
+  if (world.Hit(ray, 0.001f, INFINITY_F, record)) {
+    glm::vec3 target = record.point + record.normal +
+                       glm::normalize(RandomInHemiSphere(record.normal));
+    glm::vec3 color = 0.75f * RayColor(Ray(record.point, target - record.point),
+                                       world, bounce - 1);
+
+    return color;
   }
 
   // background color
@@ -131,24 +183,30 @@ uint32_t Scene::RayColor(const Ray& ray, const Hittable& world) {
   glm::vec3 color =
       (1.f - t) * glm::vec3(1.f, 1.f, 1.f) + t * glm::vec3(0.5f, 0.7f, 1.f);
 
-  return GetColor(color);
+  return color;
 }
 
-uint32_t Scene::GetColor(const glm::vec3 color) {
-  uint32_t R = static_cast<uint32_t>(color.r * 255.f);
-  uint32_t G = static_cast<uint32_t>(color.g * 255.f);
-  uint32_t B = static_cast<uint32_t>(color.b * 255.f);
+glm::vec3 Scene::RandomInUnitSphere() {
+  while (true) {
+    glm::vec3 point = Utils::RandomVec3(-1.f, 1.f);
 
-  return (255 << 24) | (B << 16) | (G << 8) | R;
+    if (glm::dot(point, point) >= 1) {
+      continue;
+    }
+
+    return point;
+  }
 }
 
-uint32_t Scene::GetColor(const glm::vec4 color) {
-  uint32_t R = static_cast<uint32_t>(color.r * 255.f);
-  uint32_t G = static_cast<uint32_t>(color.g * 255.f);
-  uint32_t B = static_cast<uint32_t>(color.b * 255.f);
-  uint32_t A = static_cast<uint32_t>(color.a * 255.f);
+glm::vec3 Scene::RandomInHemiSphere(const glm::vec3& normal) {
+  glm::vec3 in_unit_sphere = RandomInUnitSphere();
 
-  return (A << 24) | (B << 16) | (G << 8) | R;
+  // whether in current normal semi-sphere or not
+  if (glm::dot(in_unit_sphere, normal) > 0.f) {
+    return in_unit_sphere;
+  } else {
+    return -in_unit_sphere;
+  }
 }
 
 }  // namespace rt

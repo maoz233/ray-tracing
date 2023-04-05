@@ -34,10 +34,11 @@ class Scene : public Layer {
 
   void Render();
 
-  uint32_t RayColor(const Ray& ray, const Hittable& world);
+  glm::vec3 RayColor(const Ray& ray, const Hittable& world, int bounce);
 
-  uint32_t GetColor(const glm::vec3 color);
-  uint32_t GetColor(const glm::vec4 color);
+  glm::vec3 RandomInUnitSphere();
+
+  glm::vec3 RandomInHemiSphere(const glm::vec3& normal);
 
  private:
   uint32_t width_ = 0;
@@ -50,6 +51,12 @@ class Scene : public Layer {
   VkDevice& device_;
   VkQueue& graphics_queue_;
   VkCommandPool& command_pool_;
+
+  float delta_time_ = 0.f;
+  int bounce_limit_ = 5;
+  float gamma_ = 1.05f;
+  bool is_playing_ = false;
+  const char* play_button_label_ = "Play";
 };
 
 }  // namespace rt

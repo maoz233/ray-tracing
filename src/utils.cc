@@ -12,10 +12,12 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <random>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -25,6 +27,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+
+#include <glm/glm.hpp>
 
 #include "application.h"
 
@@ -645,6 +649,41 @@ void Utils::CopyBufferToImage(const VkDevice& device,
                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
   EndSingleTimeCommand(device, graphics_queue, command_pool, command_buffer);
+}
+
+uint32_t Utils::GetColor(const glm::vec3 color, float gamma) {
+  uint32_t R = static_cast<uint32_t>(
+      std::pow(std::clamp(color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  uint32_t G = static_cast<uint32_t>(
+      std::pow(std::clamp(color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  uint32_t B = static_cast<uint32_t>(
+      std::pow(std::clamp(color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
+
+  return (255 << 24) | (B << 16) | (G << 8) | R;
+}
+
+uint32_t Utils::GetColor(const glm::vec4 color, float gamma) {
+  uint32_t R = static_cast<uint32_t>(
+      std::pow(std::clamp(color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  uint32_t G = static_cast<uint32_t>(
+      std::pow(std::clamp(color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  uint32_t B = static_cast<uint32_t>(
+      std::pow(std::clamp(color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  uint32_t A = static_cast<uint32_t>(std::clamp(color.a, 0.f, 0.999f) * 256.f);
+
+  return (A << 24) | (B << 16) | (G << 8) | R;
+}
+
+float Utils::RandomFloat(float min, float max) {
+  static std::uniform_real_distribution<float> distribution(min, max);
+  static std::mt19937 generator{};
+
+  return distribution(generator);
+}
+
+glm::vec3 Utils::RandomVec3(float min, float max) {
+  return glm::vec3(RandomFloat(min, max), RandomFloat(min, max),
+                   RandomFloat(min, max));
 }
 
 }  // namespace rt
