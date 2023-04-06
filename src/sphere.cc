@@ -20,8 +20,9 @@
 
 namespace rt {
 
-Sphere::Sphere(glm::vec3 center, float radius)
-    : radius_{radius}, center_{center} {}
+Sphere::Sphere(glm::vec3 center, float radius,
+               std::shared_ptr<Material> material)
+    : radius_{radius}, center_{center}, material_{material} {}
 
 bool Sphere::Hit(const Ray& ray, float t_min, float t_max,
                  HitRecord& record) const {
@@ -56,6 +57,8 @@ bool Sphere::Hit(const Ray& ray, float t_min, float t_max,
 
   glm::vec3 outward_normal = (record.point - center_) / radius_;
   record.SetFaceNormal(ray, outward_normal);
+
+  record.material = material_;
 
   return true;
 }

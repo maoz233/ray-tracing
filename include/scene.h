@@ -36,10 +36,6 @@ class Scene : public Layer {
 
   glm::vec3 RayColor(const Ray& ray, const Hittable& world, int bounce);
 
-  glm::vec3 RandomInUnitSphere();
-
-  glm::vec3 RandomInHemiSphere(const glm::vec3& normal);
-
  private:
   uint32_t width_ = 0;
   uint32_t height_ = 0;

@@ -177,6 +177,13 @@ class Utils {
 
   // random 3-dimension vector
   static glm::vec3 RandomVec3(float min = 0.f, float max = 1.f);
+
+  // check vector is near zero
+  static bool NearZero(const glm::vec3& vec);
+
+  static glm::vec3 RandomInUnitSphere();
+
+  static glm::vec3 RandomInHemiSphere(const glm::vec3& normal);
 };
 
 }  // namespace rt

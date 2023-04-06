@@ -27,6 +27,9 @@
 #include "camera.h"
 #include "config.h"
 #include "hittable_list.h"
+#include "lambertian.h"
+#include "material.h"
+#include "metal.h"
 #include "ray.h"
 #include "sphere.h"
 #include "utils.h"
@@ -137,10 +140,26 @@ void Scene::Render() {
   // camera
   Camera camera{};
 
+  // material
+  std::shared_ptr<Material> material_ground =
+      std::make_shared<Lambertian>(glm::vec3(0.8f, 0.8f, 0.f));
+  std::shared_ptr<Material> material_center =
+      std::make_shared<Lambertian>(glm::vec3(0.7f, 0.3f, 0.3f));
+  std::shared_ptr<Material> material_left =
+      std::make_shared<Metal>(0.3f, glm::vec3(0.8f, 0.8f, 0.8f));
+  std::shared_ptr<Material> material_right =
+      std::make_shared<Metal>(1.f, glm::vec3(0.8f, 0.6f, 0.2f));
+
   // world
   HittableList world{};
-  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, 0.f, -1.f), 0.5f));
-  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, -100.5f, -1.f), 100.f));
+  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, -100.5f, -1.f), 100.f,
+                                     material_ground));
+  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, 0.f, -1.f), 0.5f,
+                                     material_center));
+  world.Add(std::make_shared<Sphere>(glm::vec3(-1.f, 0.f, -1.f), 0.5f,
+                                     material_left));
+  world.Add(std::make_shared<Sphere>(glm::vec3(1.f, 0.f, -1.f), 0.5f,
+                                     material_right));
 
   // set image pixel data
   for (uint32_t j = 0; j < height_; ++j) {
@@ -187,12 +206,14 @@ glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {
 
   // hittable objects color
   if (world.Hit(ray, 0.001f, INFINITY_F, record)) {
-    glm::vec3 target = record.point + record.normal +
-                       glm::normalize(RandomInHemiSphere(record.normal));
-    glm::vec3 color = 0.5f * RayColor(Ray(record.point, target - record.point),
-                                      world, bounce - 1);
+    Ray scattered{};
+    glm::vec3 attenuation{};
 
-    return color;
+    if (record.material->Scatter(ray, record, attenuation, scattered)) {
+      return attenuation * RayColor(scattered, world, bounce - 1);
+    }
+
+    return glm::vec3(0.f, 0.f, 0.f);
   }
 
   // background color
@@ -202,29 +223,6 @@ glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {
       (1.f - t) * glm::vec3(1.f, 1.f, 1.f) + t * glm::vec3(0.5f, 0.7f, 1.f);
 
   return color;
-}
-
-glm::vec3 Scene::RandomInUnitSphere() {
-  while (true) {
-    glm::vec3 point = Utils::RandomVec3(-1.f, 1.f);
-
-    if (glm::dot(point, point) >= 1) {
-      continue;
-    }
-
-    return point;
-  }
-}
-
-glm::vec3 Scene::RandomInHemiSphere(const glm::vec3& normal) {
-  glm::vec3 in_unit_sphere = RandomInUnitSphere();
-
-  // whether in current normal semi-sphere or not
-  if (glm::dot(in_unit_sphere, normal) > 0.f) {
-    return in_unit_sphere;
-  } else {
-    return -in_unit_sphere;
-  }
 }
 
 }  // namespace rt

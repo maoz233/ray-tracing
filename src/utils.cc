@@ -692,4 +692,34 @@ glm::vec3 Utils::RandomVec3(float min, float max) {
                    RandomFloat(min, max));
 }
 
+bool Utils::NearZero(const glm::vec3& vec) {
+  const float delta = static_cast<float>(1e-8);
+
+  return (std::fabs(vec.x) < delta) && (std::fabs(vec.y) < delta) &&
+         (std::fabs(vec.z) < delta);
+}
+
+glm::vec3 Utils::RandomInUnitSphere() {
+  while (true) {
+    glm::vec3 point = Utils::RandomVec3(-1.f, 1.f);
+
+    if (glm::dot(point, point) >= 1) {
+      continue;
+    }
+
+    return point;
+  }
+}
+
+glm::vec3 Utils::RandomInHemiSphere(const glm::vec3& normal) {
+  glm::vec3 in_unit_sphere = RandomInUnitSphere();
+
+  // whether in current normal semi-sphere or not
+  if (glm::dot(in_unit_sphere, normal) > 0.f) {
+    return in_unit_sphere;
+  } else {
+    return -in_unit_sphere;
+  }
+}
+
 }  // namespace rt

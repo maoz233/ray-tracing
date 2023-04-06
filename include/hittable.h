@@ -11,17 +11,23 @@
 #ifndef RAY_TRACING_INCLUDE_HITTABLE_H_
 #define RAY_TRACING_INCLUDE_HITTABLE_H_
 
+#include <memory>
+
+#define RAY_TRACING_INCLUDE_GLM
 #include <glm/glm.hpp>
 
 #include "ray.h"
 
 namespace rt {
 
+class Material;
+
 struct HitRecord {
   bool front_face;
   float t;
   glm::vec3 point;
   glm::vec3 normal;
+  std::shared_ptr<Material> material;
 
   inline void SetFaceNormal(const Ray& ray, const glm::vec3& outward_normal) {
     front_face = glm::dot(ray.GetDirection(), outward_normal) < 0.f;
