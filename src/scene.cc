@@ -26,6 +26,7 @@
 
 #include "camera.h"
 #include "config.h"
+#include "dielectric.h"
 #include "hittable_list.h"
 #include "lambertian.h"
 #include "material.h"
@@ -73,7 +74,7 @@ void Scene::OnUIRender() {
   // imgui text: fps
   ImGui::Text("Time: %.2fms", delta_time_);
   // imgui text: fps
-  ImGui::Text("FPS: %.2f", 1000.f / delta_time_);
+  ImGui::Text("FPS: %.2f", delta_time_ ? 1000.f / delta_time_ : 0.f);
   // imgui text: scene extent detail
   ImGui::Text("Scene: %d * %d", width_, height_);
 
@@ -144,11 +145,10 @@ void Scene::Render() {
   std::shared_ptr<Material> material_ground =
       std::make_shared<Lambertian>(glm::vec3(0.8f, 0.8f, 0.f));
   std::shared_ptr<Material> material_center =
-      std::make_shared<Lambertian>(glm::vec3(0.7f, 0.3f, 0.3f));
+      std::make_shared<Lambertian>(glm::vec3(0.1f, 0.2f, 0.5f));
   std::shared_ptr<Material> material_left =
-      std::make_shared<Metal>(0.3f, glm::vec3(0.8f, 0.8f, 0.8f));
-  std::shared_ptr<Material> material_right =
-      std::make_shared<Metal>(1.f, glm::vec3(0.8f, 0.6f, 0.2f));
+      std::make_shared<Metal>(0.f, glm::vec3(0.8f, 0.6f, 0.2f));
+  std::shared_ptr<Material> material_right = std::make_shared<Dielectric>(1.5f);
 
   // world
   HittableList world{};
