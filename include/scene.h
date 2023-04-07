@@ -49,8 +49,8 @@ class Scene : public Layer {
   VkCommandPool& command_pool_;
 
   float delta_time_ = 0.f;
-  int samples_per_pixel_ = 8;
-  int bounce_limit_ = 5;
+  int samples_per_pixel_ = 16;
+  int bounce_limit_ = 20;
   float gamma_ = 1.05f;
   bool is_playing_ = false;
   const char* play_button_label_ = "Play";

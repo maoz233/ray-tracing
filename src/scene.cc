@@ -51,7 +51,7 @@ Scene::~Scene() {
 
 void Scene::OnUIRender() {
   // imgui: scene viewport
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
   ImGui::Begin("Scene");
 
   width_ = static_cast<uint32_t>(ImGui::GetContentRegionAvail().x);
@@ -69,14 +69,43 @@ void Scene::OnUIRender() {
   ImGui::ShowDemoWindow();
 
   // imgui viewport: settings
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
   ImGui::Begin("Settings");
 
-  // imgui text: fps
+  // imgui child window: statistics
+  ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+  window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
+  window_flags |= ImGuiWindowFlags_MenuBar;
+  ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+  ImGui::BeginChild("Statistics", ImVec2(0.f, 100.f), true, window_flags);
+
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("Statistics", false)) {
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMenuBar();
+  }
+
+  // imgui text: time
   ImGui::Text("Time: %.2fms", delta_time_);
   // imgui text: fps
   ImGui::Text("FPS: %.2f", delta_time_ ? 1000.f / delta_time_ : 0.f);
   // imgui text: scene extent detail
   ImGui::Text("Scene: %d * %d", width_, height_);
+
+  ImGui::EndChild();
+
+  //  imgui child window: ray
+  ImGui::BeginChild("Ray", ImVec2(0.f, 100.f), true, window_flags);
+
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("Ray", false)) {
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMenuBar();
+  }
 
   // imgui input: samples per pixel
   ImGui::Text("Samples: ");
@@ -105,6 +134,19 @@ void Scene::OnUIRender() {
     gamma_ = 0.f;
   }
 
+  ImGui::EndChild();
+
+  //  imgui child window: render
+  ImGui::BeginChild("Render", ImVec2(0.f, 100.f), true, window_flags);
+
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("Render", false)) {
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMenuBar();
+  }
+
   // imgui: test button
   if (ImGui::Button("Test")) {
     Render();
@@ -116,7 +158,11 @@ void Scene::OnUIRender() {
     play_button_label_ = is_playing_ ? "Pause" : "Play";
   }
 
+  ImGui::EndChild();
+  ImGui::PopStyleVar();
+
   ImGui::End();
+  ImGui::PopStyleVar();
 
   if (is_playing_) {
     Render();
@@ -158,6 +204,8 @@ void Scene::Render() {
                                      material_center));
   world.Add(std::make_shared<Sphere>(glm::vec3(-1.f, 0.f, -1.f), 0.5f,
                                      material_left));
+  world.Add(std::make_shared<Sphere>(glm::vec3(1.f, 0.f, -1.f), -0.4f,
+                                     material_right));
   world.Add(std::make_shared<Sphere>(glm::vec3(1.f, 0.f, -1.f), 0.5f,
                                      material_right));
 
