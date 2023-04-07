@@ -21,7 +21,7 @@
 
 #define RAY_TRACING_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-
+#define RAY_TRACING_INCLUDE_GLM
 #include <glm/glm.hpp>
 
 #include "camera.h"
@@ -136,6 +136,32 @@ void Scene::OnUIRender() {
 
   ImGui::EndChild();
 
+  // imgui child window: camera
+  ImGui::BeginChild("Camera", ImVec2(0.f, 150.f), true, window_flags);
+
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("Camera", false)) {
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMenuBar();
+  }
+
+  ImGui::BeginGroup();
+  ImGui::Text("Origin: ");
+  ImGui::Text("X: ");
+  ImGui::SameLine();
+  ImGui::InputFloat("##OriginX", &origin_.x, 0.01f, 1.f, "%.2f");
+  ImGui::Text("Y: ");
+  ImGui::SameLine();
+  ImGui::InputFloat("##OriginY", &origin_.y, 0.01f, 1.f, "%.2f");
+  ImGui::Text("Z: ");
+  ImGui::SameLine();
+  ImGui::InputFloat("##OriginZ", &origin_.z, 0.01f, 1.f, "%.2f");
+  ImGui::EndGroup();
+
+  ImGui::EndChild();
+
   //  imgui child window: render
   ImGui::BeginChild("Render", ImVec2(0.f, 100.f), true, window_flags);
 
@@ -185,7 +211,8 @@ void Scene::Render() {
   }
 
   // camera
-  Camera camera{};
+  Camera camera(origin_, glm::vec3(0.f, 0.f, -1), glm::vec3(0.f, 1.f, 0.f),
+                90.f, static_cast<float>(width_ / height_));
 
   // material
   std::shared_ptr<Material> material_ground =

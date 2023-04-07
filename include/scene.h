@@ -11,9 +11,12 @@
 #ifndef RAY_TRACING_INCLUDE_SCENE_H_
 #define RAY_TRACING_INCLUDE_SCENE_H_
 
-#include <vulkan/vulkan.h>
-
 #include <cstdint>
+
+#define RAY_TRACING_INCLUDE_VULKAN
+#include <vulkan/vulkan.h>
+#define RAY_TRACING_INCLUDE_GLM
+#include <glm/glm.hpp>
 
 #include "hittable.h"
 #include "image.h"
@@ -54,6 +57,8 @@ class Scene : public Layer {
   float gamma_ = 1.05f;
   bool is_playing_ = false;
   const char* play_button_label_ = "Play";
+
+  glm::vec3 origin_ = glm::vec3(0.f, 0.f, 0.f);
 };
 
 }  // namespace rt

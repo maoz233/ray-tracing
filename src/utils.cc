@@ -31,6 +31,7 @@
 #include <glm/glm.hpp>
 
 #include "application.h"
+#include "config.h"
 
 namespace rt {
 
@@ -721,5 +722,7 @@ glm::vec3 Utils::RandomInHemiSphere(const glm::vec3& normal) {
     return -in_unit_sphere;
   }
 }
+
+float Utils::DegreesToRadians(float degree) { return PI / 180.f * degree; }
 
 }  // namespace rt

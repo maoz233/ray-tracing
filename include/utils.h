@@ -184,6 +184,8 @@ class Utils {
   static glm::vec3 RandomInUnitSphere();
 
   static glm::vec3 RandomInHemiSphere(const glm::vec3& normal);
+
+  static float DegreesToRadians(float degree);
 };
 
 }  // namespace rt

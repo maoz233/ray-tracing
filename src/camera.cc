@@ -11,20 +11,25 @@
 #include "camera.h"
 
 #include "ray.h"
+#include "utils.h"
 
 namespace rt {
 
-Camera::Camera() {
-  const float aspect_ratio = 16.f / 9.f;
-  const float focal_length = 1.f;
-  const float viewport_height = 2.f;
+Camera::Camera(glm::vec3 origin, glm::vec3 look_at, glm::vec3 world_up,
+               float fov, float aspect_ratio) {
+  const float theta = Utils::DegreesToRadians(fov);
+  const float height = glm::tan(theta / 2.f);
+  const float viewport_height = 2.f * height;
   const float viewport_width = viewport_height * aspect_ratio;
 
-  origin_ = glm::vec3(0.f, 0.f, 0.f);
-  horizontal_ = glm::vec3(viewport_width, 0.f, 0.f);
-  vertical_ = glm::vec3(0.f, viewport_height, 0.f);
-  lower_left_ = origin_ - horizontal_ / 2.f - vertical_ / 2.f -
-                glm::vec3(0.f, 0.f, focal_length);
+  glm::vec3 forward = glm::normalize(look_at - origin);
+  glm::vec3 right = glm::normalize(glm::cross(forward, world_up));
+  glm::vec3 up = glm::cross(right, forward);
+
+  origin_ = origin;
+  horizontal_ = viewport_width * right;
+  vertical_ = viewport_height * up;
+  lower_left_ = origin_ - horizontal_ / 2.f - vertical_ / 2.f + forward;
 }
 
 Ray Camera::GetRay(float u, float v) const {
