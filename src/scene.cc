@@ -77,13 +77,11 @@ void Scene::OnUIRender() {
   window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
   window_flags |= ImGuiWindowFlags_MenuBar;
   ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5.f, 5.f));
   ImGui::BeginChild("Statistics", ImVec2(0.f, 100.f), true, window_flags);
 
   if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("Statistics", false)) {
-      ImGui::EndMenu();
-    }
-
+    ImGui::BeginMenu("Statistics", false);
     ImGui::EndMenuBar();
   }
 
@@ -97,13 +95,10 @@ void Scene::OnUIRender() {
   ImGui::EndChild();
 
   //  imgui child window: ray
-  ImGui::BeginChild("Ray", ImVec2(0.f, 100.f), true, window_flags);
+  ImGui::BeginChild("Ray", ImVec2(0.f, 150.f), true, window_flags);
 
   if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("Ray", false)) {
-      ImGui::EndMenu();
-    }
-
+    ImGui::BeginMenu("Ray", false);
     ImGui::EndMenuBar();
   }
 
@@ -140,25 +135,29 @@ void Scene::OnUIRender() {
   ImGui::BeginChild("Camera", ImVec2(0.f, 150.f), true, window_flags);
 
   if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("Camera", false)) {
-      ImGui::EndMenu();
-    }
-
+    ImGui::BeginMenu("Camera", false);
     ImGui::EndMenuBar();
   }
 
-  ImGui::BeginGroup();
   ImGui::Text("Origin: ");
-  ImGui::Text("X: ");
   ImGui::SameLine();
-  ImGui::InputFloat("##OriginX", &origin_.x, 0.01f, 1.f, "%.2f");
-  ImGui::Text("Y: ");
+  ImGui::DragFloat3("##CameraOrigin", origin_, 0.01f, 0.f, 1.f, "%.2f");
+
+  ImGui::Text("FOV: ");
   ImGui::SameLine();
-  ImGui::InputFloat("##OriginY", &origin_.y, 0.01f, 1.f, "%.2f");
-  ImGui::Text("Z: ");
+  ImGui::InputFloat("##FieldOfViewVertically", &fov_, 0.01f, 1.f, "%.2f");
+
+  if (fov_ < 0.f) {
+    fov_ = 0.f;
+  }
+
+  ImGui::Text("Aperture: ");
   ImGui::SameLine();
-  ImGui::InputFloat("##OriginZ", &origin_.z, 0.01f, 1.f, "%.2f");
-  ImGui::EndGroup();
+  ImGui::InputFloat("##FieldOfDepth", &aperture_, 0.01f, 1.f, "%.2f");
+
+  if (aperture_ < 0.f) {
+    aperture_ = 0.f;
+  }
 
   ImGui::EndChild();
 
@@ -166,10 +165,7 @@ void Scene::OnUIRender() {
   ImGui::BeginChild("Render", ImVec2(0.f, 100.f), true, window_flags);
 
   if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("Render", false)) {
-      ImGui::EndMenu();
-    }
-
+    ImGui::BeginMenu("Render", false);
     ImGui::EndMenuBar();
   }
 
@@ -185,6 +181,7 @@ void Scene::OnUIRender() {
   }
 
   ImGui::EndChild();
+  ImGui::PopStyleVar();
   ImGui::PopStyleVar();
 
   ImGui::End();
@@ -211,8 +208,13 @@ void Scene::Render() {
   }
 
   // camera
-  Camera camera(origin_, glm::vec3(0.f, 0.f, -1), glm::vec3(0.f, 1.f, 0.f),
-                90.f, static_cast<float>(width_ / height_));
+  glm::vec3 origin(origin_[0], origin_[1], origin_[2]);
+  glm::vec3 lookat(0.f, 0.f, -1.f);
+  glm::vec3 world_up(0.f, 1.f, 0.f);
+  float focus_dist = glm::length(origin - lookat);
+
+  Camera camera(origin, lookat, world_up, fov_,
+                static_cast<float>(width_ / height_), aperture_, focus_dist);
 
   // material
   std::shared_ptr<Material> material_ground =

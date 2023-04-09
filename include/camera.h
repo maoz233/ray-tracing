@@ -21,7 +21,7 @@ class Camera {
  public:
   Camera() = default;
   Camera(glm::vec3 origin, glm::vec3 look_at, glm::vec3 world_up, float fov,
-         float aspect_ratio);
+         float aspect_ratio, float aperture, float focus_dist);
   ~Camera() = default;
 
   Ray GetRay(float u, float v) const;
@@ -31,6 +31,12 @@ class Camera {
   glm::vec3 lower_left_;
   glm::vec3 horizontal_;
   glm::vec3 vertical_;
+
+  glm::vec3 forward_;
+  glm::vec3 right_;
+  glm::vec3 up_;
+
+  float lens_radius_;
 };
 
 }  // namespace rt

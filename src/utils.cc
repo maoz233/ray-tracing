@@ -723,6 +723,18 @@ glm::vec3 Utils::RandomInHemiSphere(const glm::vec3& normal) {
   }
 }
 
+glm::vec3 Utils::RandomInUnitDisk() {
+  while (true) {
+    glm::vec3 point(RandomFloat(-1.f, 1.f), RandomFloat(-1.f, 1.f), 0.f);
+
+    if (glm::dot(point, point) >= 1.f) {
+      continue;
+    }
+
+    return point;
+  }
+}
+
 float Utils::DegreesToRadians(float degree) { return PI / 180.f * degree; }
 
 }  // namespace rt

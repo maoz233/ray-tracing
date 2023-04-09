@@ -52,13 +52,15 @@ class Scene : public Layer {
   VkCommandPool& command_pool_;
 
   float delta_time_ = 0.f;
-  int samples_per_pixel_ = 16;
-  int bounce_limit_ = 20;
+  int samples_per_pixel_ = 100;
+  int bounce_limit_ = 50;
   float gamma_ = 1.05f;
   bool is_playing_ = false;
   const char* play_button_label_ = "Play";
 
-  glm::vec3 origin_ = glm::vec3(0.f, 0.f, 0.f);
+  float origin_[3] = {-2.f, 2.f, 1.f};
+  float fov_ = 90.f;
+  float aperture_ = 2.f;
 };
 
 }  // namespace rt
