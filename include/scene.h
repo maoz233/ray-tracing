@@ -19,6 +19,7 @@
 #include <glm/glm.hpp>
 
 #include "hittable.h"
+#include "hittable_list.h"
 #include "image.h"
 #include "layer.h"
 #include "ray.h"
@@ -39,6 +40,8 @@ class Scene : public Layer {
 
   glm::vec3 RayColor(const Ray& ray, const Hittable& world, int bounce);
 
+  HittableList RandomScene();
+
  private:
   uint32_t width_ = 0;
   uint32_t height_ = 0;
@@ -58,9 +61,10 @@ class Scene : public Layer {
   bool is_playing_ = false;
   const char* play_button_label_ = "Play";
 
-  float origin_[3] = {-2.f, 2.f, 1.f};
-  float fov_ = 90.f;
-  float aperture_ = 2.f;
+  float origin_[3] = {13.f, 2.f, 3.f};
+  float focus_dist_ = 10.f;
+  float fov_ = 20.f;
+  float aperture_ = 0.1f;
 };
 
 }  // namespace rt

@@ -209,34 +209,14 @@ void Scene::Render() {
 
   // camera
   glm::vec3 origin(origin_[0], origin_[1], origin_[2]);
-  glm::vec3 lookat(0.f, 0.f, -1.f);
+  glm::vec3 lookat(0.f);
   glm::vec3 world_up(0.f, 1.f, 0.f);
-  float focus_dist = glm::length(origin - lookat);
 
   Camera camera(origin, lookat, world_up, fov_,
-                static_cast<float>(width_ / height_), aperture_, focus_dist);
-
-  // material
-  std::shared_ptr<Material> material_ground =
-      std::make_shared<Lambertian>(glm::vec3(0.8f, 0.8f, 0.f));
-  std::shared_ptr<Material> material_center =
-      std::make_shared<Lambertian>(glm::vec3(0.1f, 0.2f, 0.5f));
-  std::shared_ptr<Material> material_left =
-      std::make_shared<Metal>(0.f, glm::vec3(0.8f, 0.6f, 0.2f));
-  std::shared_ptr<Material> material_right = std::make_shared<Dielectric>(1.5f);
+                static_cast<float>(width_ / height_), aperture_, focus_dist_);
 
   // world
-  HittableList world{};
-  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, -100.5f, -1.f), 100.f,
-                                     material_ground));
-  world.Add(std::make_shared<Sphere>(glm::vec3(0.f, 0.f, -1.f), 0.5f,
-                                     material_center));
-  world.Add(std::make_shared<Sphere>(glm::vec3(-1.f, 0.f, -1.f), 0.5f,
-                                     material_left));
-  world.Add(std::make_shared<Sphere>(glm::vec3(1.f, 0.f, -1.f), -0.4f,
-                                     material_right));
-  world.Add(std::make_shared<Sphere>(glm::vec3(1.f, 0.f, -1.f), 0.5f,
-                                     material_right));
+  HittableList world = RandomScene();
 
   // set image pixel data
   for (uint32_t j = 0; j < height_; ++j) {
@@ -300,6 +280,66 @@ glm::vec3 Scene::RayColor(const Ray& ray, const Hittable& world, int bounce) {
       (1.f - t) * glm::vec3(1.f, 1.f, 1.f) + t * glm::vec3(0.5f, 0.7f, 1.f);
 
   return color;
+}
+
+HittableList Scene::RandomScene() {
+  HittableList world{};
+
+  std::shared_ptr<Material> ground_material =
+      std::make_shared<Lambertian>(glm::vec3(0.5f));
+  std::shared_ptr<Hittable> ground = std::make_shared<Sphere>(
+      glm::vec3(0.f, -1000.f, 0.f), 1000.f, ground_material);
+  world.Add(ground);
+
+  // for (int i = -11; i < 11; ++i) {
+  //   for (int j = -11; j < 11; ++j) {
+  //     float choose_mat = Utils::RandomFloat();
+  //     glm::vec3 center(i + 0.9f * Utils::RandomFloat(), 0.2f,
+  //                      j + 0.9f * Utils::RandomFloat());
+
+  //     if (glm::length(center - glm::vec3(4.f, 0.2f, 0.f)) > 0.9f) {
+  //       std::shared_ptr<Material> material{};
+
+  //       if (choose_mat < 0.8f) {
+  //         // diffuse
+  //         glm::vec3 albedo = Utils::RandomVec3();
+  //         material = std::make_shared<Lambertian>(albedo);
+  //       } else if (choose_mat < 0.95f) {
+  //         // metal
+  //         float fuzz = Utils::RandomFloat(0.f, 0.05f);
+  //         glm::vec3 albedo(Utils::RandomFloat(0.5f, 1.f));
+  //         material = std::make_shared<Metal>(fuzz, albedo);
+  //       } else {
+  //         // glass
+  //         material = std::make_shared<Dielectric>(1.5f);
+  //       }
+
+  //       std::shared_ptr<Sphere> sphere =
+  //           std::make_shared<Sphere>(center, 0.2f, material);
+  //       world.Add(sphere);
+  //     }
+  //   }
+  // }
+
+  std::shared_ptr<Material> diffuse_material =
+      std::make_shared<Lambertian>(glm::vec3(0.4f, 0.2f, 0.1f));
+  std::shared_ptr<Sphere> diffuse_sphere = std::make_shared<Sphere>(
+      glm::vec3(-4.f, 1.f, 0.f), 1.f, diffuse_material);
+  world.Add(diffuse_sphere);
+
+  std::shared_ptr<Material> metal_material =
+      std::make_shared<Metal>(0.f, glm::vec3(0.7f, 0.6f, 0.5f));
+  std::shared_ptr<Sphere> metal_sphere =
+      std::make_shared<Sphere>(glm::vec3(4.f, 1.f, 0.f), 1.f, metal_material);
+  world.Add(metal_sphere);
+
+  std::shared_ptr<Material> dielectric_material =
+      std::make_shared<Dielectric>(1.5f);
+  std::shared_ptr<Sphere> dielectric_sphere = std::make_shared<Sphere>(
+      glm::vec3(0.f, 1.f, 0.f), 1.f, dielectric_material);
+  world.Add(dielectric_sphere);
+
+  return world;
 }
 
 }  // namespace rt
