@@ -103,31 +103,25 @@ void Scene::OnUIRender() {
   }
 
   // imgui input: samples per pixel
-  ImGui::Text("Samples: ");
+  ImGui::Text("Samples");
   ImGui::SameLine();
-  ImGui::InputInt("##SamplesPerPixel", &samples_per_pixel_);
-
-  if (samples_per_pixel_ < 1) {
-    samples_per_pixel_ = 1;
-  }
+  ImGui::SetNextItemWidth(50.f);
+  ImGui::DragInt("##SamplesPerPixel", &samples_per_pixel_, 1.f, 1, 1000, "%d",
+                 ImGuiSliderFlags_AlwaysClamp);
 
   // imgui input: bounce limit
-  ImGui::Text("Bounce: ");
+  ImGui::Text("Bounce");
   ImGui::SameLine();
-  ImGui::InputInt("##BounceLimit", &bounce_limit_);
-
-  if (bounce_limit_ < 0) {
-    bounce_limit_ = 0;
-  }
+  ImGui::SetNextItemWidth(50.f);
+  ImGui::DragInt("##BounceLimit", &bounce_limit_, 1.f, 1, 1000, "%d",
+                 ImGuiSliderFlags_AlwaysClamp);
 
   // imgui input: gamma
-  ImGui::Text("Gamma: ");
+  ImGui::Text("Gamma");
   ImGui::SameLine();
-  ImGui::InputFloat("##Gamma", &gamma_, 0.01f, 1.f, "%.2f");
-
-  if (gamma_ < 0.f) {
-    gamma_ = 0.f;
-  }
+  ImGui::SetNextItemWidth(50.f);
+  ImGui::DragFloat("##Gamma", &gamma_, 0.01f, 0.f, 10.f, "%.2f",
+                   ImGuiSliderFlags_AlwaysClamp);
 
   ImGui::EndChild();
 
@@ -139,25 +133,21 @@ void Scene::OnUIRender() {
     ImGui::EndMenuBar();
   }
 
-  ImGui::Text("Origin: ");
+  ImGui::Text("Origin ");
   ImGui::SameLine();
-  ImGui::DragFloat3("##CameraOrigin", origin_, 0.01f, 0.f, 1.f, "%.2f");
+  ImGui::SetNextItemWidth(150.f);
+  ImGui::DragFloat3("##CameraOrigin", origin_, 0.01f, 0.f, 0.f, "%.2f");
 
-  ImGui::Text("FOV: ");
+  ImGui::Text("FOV ");
   ImGui::SameLine();
-  ImGui::InputFloat("##FieldOfViewVertically", &fov_, 0.01f, 1.f, "%.2f");
+  ImGui::SetNextItemWidth(50.f);
+  ImGui::DragFloat("##FieldOfViewVertically", &fov_, 0.01f, 0.f, 1.f, "%.2f",
+                   ImGuiSliderFlags_AlwaysClamp);
 
-  if (fov_ < 0.f) {
-    fov_ = 0.f;
-  }
-
-  ImGui::Text("Aperture: ");
+  ImGui::Text("Aperture ");
   ImGui::SameLine();
-  ImGui::InputFloat("##FieldOfDepth", &aperture_, 0.01f, 1.f, "%.2f");
-
-  if (aperture_ < 0.f) {
-    aperture_ = 0.f;
-  }
+  ImGui::SetNextItemWidth(50.f);
+  ImGui::DragFloat("##FieldOfDepth", &aperture_, 0.01f, 0.f, 1.f, "%.2f");
 
   ImGui::EndChild();
 

@@ -61,9 +61,9 @@ class Scene : public Layer {
   bool is_playing_ = false;
   const char* play_button_label_ = "Play";
 
-  float origin_[3] = {13.f, 2.f, 3.f};
+  float origin_[3] = {0.f, 4.f, 5.f};
   float focus_dist_ = 10.f;
-  float fov_ = 20.f;
+  float fov_ = 90.f;
   float aperture_ = 0.1f;
 };
 
