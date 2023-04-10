@@ -48,6 +48,8 @@ class Scene : public Layer {
 
   Image* image_ = nullptr;
   uint32_t* image_data_ = nullptr;
+  std::vector<uint32_t> horizontal_iterator_;
+  std::vector<uint32_t> vertical_iterator_;
 
   VkPhysicalDevice& physical_device_;
   VkDevice& device_;

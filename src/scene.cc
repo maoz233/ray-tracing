@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <execution>
 #include <memory>
 
 #define RAY_TRACING_INCLUDE_IMGUI
@@ -195,6 +196,13 @@ void Scene::Render() {
     delete[] image_data_;
     // allocate new image data
     image_data_ = new uint32_t[width_ * height_];
+
+    for (uint32_t i = 0; i < width_; ++i) {
+      horizontal_iterator_.push_back(i);
+    }
+    for (uint32_t i = 0; i < height_; ++i) {
+      vertical_iterator_.push_back(i);
+    }
   }
 
   // camera
@@ -208,25 +216,48 @@ void Scene::Render() {
   // world
   HittableList world = RandomScene();
 
+  std::for_each(
+      std::execution::par, vertical_iterator_.begin(), vertical_iterator_.end(),
+      [&](uint32_t y) {
+        std::for_each(
+            std::execution::par, horizontal_iterator_.begin(),
+            horizontal_iterator_.end(), [&](uint32_t x) {
+              glm::vec3 pixel_color{};
+
+              for (int s = 0; s < samples_per_pixel_; ++s) {
+                float u = static_cast<float>(x + Utils::RandomFloat()) /
+                          static_cast<float>(width_ - 1);
+                float v = 1.f - static_cast<float>(y + Utils::RandomFloat()) /
+                                    static_cast<float>(height_ - 1);
+
+                Ray ray = camera.GetRay(u, v);
+                pixel_color += RayColor(ray, world, bounce_limit_);
+              }
+
+              image_data_[y * width_ + x] =
+                  Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
+            });
+      });
+
   // set image pixel data
-  for (uint32_t j = 0; j < height_; ++j) {
-    for (uint32_t i = 0; i < width_; ++i) {
-      glm::vec3 pixel_color{};
+  // for (uint32_t j = 0; j < height_; ++j) {
+  //   for (uint32_t i = 0; i < width_; ++i) {
+  //     glm::vec3 pixel_color{};
 
-      for (int s = 0; s < samples_per_pixel_; ++s) {
-        float u = static_cast<float>(i + Utils::RandomFloat()) /
-                  static_cast<float>(width_ - 1);
-        float v = 1.f - static_cast<float>(j + Utils::RandomFloat()) /
-                            static_cast<float>(height_ - 1);
+  //     for (int s = 0; s < samples_per_pixel_; ++s) {
+  //       float u = static_cast<float>(i + Utils::RandomFloat()) /
+  //                 static_cast<float>(width_ - 1);
+  //       float v = 1.f - static_cast<float>(j + Utils::RandomFloat()) /
+  //                           static_cast<float>(height_ - 1);
 
-        Ray ray = camera.GetRay(u, v);
-        pixel_color += RayColor(ray, world, bounce_limit_);
-      }
+  //       Ray ray = camera.GetRay(u, v);
+  //       pixel_color += RayColor(ray, world, bounce_limit_);
+  //     }
 
-      image_data_[j * width_ + i] =
-          Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
-    }
-  }
+  //     image_data_[j * width_ + i] =
+  //         Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
+  //   }
+  // }
 
   // set image data
   image_->SetData(image_data_);
