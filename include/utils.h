@@ -165,11 +165,11 @@ class Utils {
                                 VkBuffer buffer, VkImage image, uint32_t width,
                                 uint32_t height);
   // RGB to RGBA in hexadecimal
-  static uint32_t GetColor(const glm::vec3 color, int samples_per_pixel = 1,
+  static uint32_t GetColor(const glm::vec3& color, int samples_per_pixel = 1,
                            float gamma = 1.f);
 
   // RGBA in hexadecimal
-  static uint32_t GetColor(const glm::vec4 color, int samples_per_pixel = 1,
+  static uint32_t GetColor(const glm::vec4& color, int samples_per_pixel = 1,
                            float gamma = 1.f);
 
   // random float number

@@ -652,31 +652,29 @@ void Utils::CopyBufferToImage(const VkDevice& device,
   EndSingleTimeCommand(device, graphics_queue, command_pool, command_buffer);
 }
 
-uint32_t Utils::GetColor(const glm::vec3 color, int samples_per_pixel,
+uint32_t Utils::GetColor(const glm::vec3& color, int samples_per_pixel,
                          float gamma) {
   float scale = static_cast<float>(1.f / samples_per_pixel);
 
-  uint32_t R = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
-  uint32_t G = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
-  uint32_t B = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
+  glm::vec3 RGB = glm::clamp(color * scale, glm::vec3(0.f), glm::vec3(1.f));
+
+  uint32_t R = static_cast<uint32_t>(std::pow(RGB.r * 255.f, 1.f / gamma));
+  uint32_t G = static_cast<uint32_t>(std::pow(RGB.g * 255.f, 1.f / gamma));
+  uint32_t B = static_cast<uint32_t>(std::pow(RGB.b * 255.f, 1.f / gamma));
 
   return (255 << 24) | (B << 16) | (G << 8) | R;
 }
 
-uint32_t Utils::GetColor(const glm::vec4 color, int samples_per_pixel,
+uint32_t Utils::GetColor(const glm::vec4& color, int samples_per_pixel,
                          float gamma) {
   float scale = static_cast<float>(1.f / samples_per_pixel);
 
-  uint32_t R = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.r, 0.f, 0.999f) * 256.f, 1.f / gamma));
-  uint32_t G = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.g, 0.f, 0.999f) * 256.f, 1.f / gamma));
-  uint32_t B = static_cast<uint32_t>(
-      std::pow(std::clamp(scale * color.b, 0.f, 0.999f) * 256.f, 1.f / gamma));
-  uint32_t A = static_cast<uint32_t>(std::clamp(color.a, 0.f, 0.999f) * 256.f);
+  glm::vec4 RGBA = glm::clamp(color * scale, glm::vec4(0.f), glm::vec4(1.f));
+
+  uint32_t R = static_cast<uint32_t>(std::pow(RGBA.r * 255.f, 1.f / gamma));
+  uint32_t G = static_cast<uint32_t>(std::pow(RGBA.g * 255.f, 1.f / gamma));
+  uint32_t B = static_cast<uint32_t>(std::pow(RGBA.b * 255.f, 1.f / gamma));
+  uint32_t A = static_cast<uint32_t>(std::pow(RGBA.a * 255.f, 1.f / gamma));
 
   return (A << 24) | (B << 16) | (G << 8) | R;
 }
