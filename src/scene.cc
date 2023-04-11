@@ -216,6 +216,27 @@ void Scene::Render() {
   // world
   HittableList world = RandomScene();
 
+  // set image pixel data
+#ifdef __APPLE__
+  for (uint32_t j = 0; j < height_; ++j) {
+    for (uint32_t i = 0; i < width_; ++i) {
+      glm::vec3 pixel_color{};
+
+      for (int s = 0; s < samples_per_pixel_; ++s) {
+        float u = static_cast<float>(i + Utils::RandomFloat()) /
+                  static_cast<float>(width_ - 1);
+        float v = 1.f - static_cast<float>(j + Utils::RandomFloat()) /
+                            static_cast<float>(height_ - 1);
+
+        Ray ray = camera.GetRay(u, v);
+        pixel_color += RayColor(ray, world, bounce_limit_);
+      }
+
+      image_data_[j * width_ + i] =
+          Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
+    }
+  }
+#else
   std::for_each(
       std::execution::par, vertical_iterator_.begin(), vertical_iterator_.end(),
       [&](uint32_t y) {
@@ -238,26 +259,7 @@ void Scene::Render() {
                   Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
             });
       });
-
-  // set image pixel data
-  // for (uint32_t j = 0; j < height_; ++j) {
-  //   for (uint32_t i = 0; i < width_; ++i) {
-  //     glm::vec3 pixel_color{};
-
-  //     for (int s = 0; s < samples_per_pixel_; ++s) {
-  //       float u = static_cast<float>(i + Utils::RandomFloat()) /
-  //                 static_cast<float>(width_ - 1);
-  //       float v = 1.f - static_cast<float>(j + Utils::RandomFloat()) /
-  //                           static_cast<float>(height_ - 1);
-
-  //       Ray ray = camera.GetRay(u, v);
-  //       pixel_color += RayColor(ray, world, bounce_limit_);
-  //     }
-
-  //     image_data_[j * width_ + i] =
-  //         Utils::GetColor(pixel_color, samples_per_pixel_, gamma_);
-  //   }
-  // }
+#endif
 
   // set image data
   image_->SetData(image_data_);
