@@ -142,7 +142,7 @@ void Scene::OnUIRender() {
   ImGui::Text("FOV ");
   ImGui::SameLine();
   ImGui::SetNextItemWidth(50.f);
-  ImGui::DragFloat("##FieldOfViewVertically", &fov_, 0.01f, 0.f, 1.f, "%.2f",
+  ImGui::DragFloat("##FieldOfViewVertically", &fov_, 0.01f, 0.f, 180.f, "%.2f",
                    ImGuiSliderFlags_AlwaysClamp);
 
   ImGui::Text("Aperture ");
@@ -166,10 +166,10 @@ void Scene::OnUIRender() {
   }
 
   // imgui: play/pause button
-  if (ImGui::Button(play_button_label_)) {
-    is_playing_ = !is_playing_;
-    play_button_label_ = is_playing_ ? "Pause" : "Play";
-  }
+  // if (ImGui::Button(play_button_label_)) {
+  //   is_playing_ = !is_playing_;
+  //   play_button_label_ = is_playing_ ? "Pause" : "Play";
+  // }
 
   ImGui::EndChild();
   ImGui::PopStyleVar();
