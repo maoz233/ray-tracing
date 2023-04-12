@@ -89,7 +89,7 @@ void Scene::OnUIRender() {
   // imgui text: time
   ImGui::Text("Time: %.2fms", delta_time_);
   // imgui text: fps
-  ImGui::Text("FPS: %.2f", delta_time_ ? 1000.f / delta_time_ : 0.f);
+  // ImGui::Text("FPS: %.2f", delta_time_ ? 1000.f / delta_time_ : 0.f);
   // imgui text: scene extent detail
   ImGui::Text("Scene: %d * %d", width_, height_);
 
